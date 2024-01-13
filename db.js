@@ -43,10 +43,68 @@ const getUserById = (request, response) => {
 
 // ----- FILL IN BELOW -----
 // Write and export the rest of the functions needed by index.js!
+// Create a new user
 
+const createUser = (request, response) => {
+  const { name } = request.body;
+  const query = `INSERT INTO user (name) VALUES (?)`;
+
+  db.run(query, [name], function (error) {
+    if (error) {
+      console.error(error.message);
+      response.status(400).json({ error: error.message });
+      return;
+    }
+    response.json({ id: this.lastID, name });
+  });
+};
+
+// Update a user's name, given an id
+const updateUserName = (request, response) => {
+  const { id } = request.params;
+  const { name } = request.body;
+  const query = `UPDATE user SET name = ? WHERE id = ?`;
+
+  db.run(query, [name, id], function (error) {
+    if (error) {
+      console.error(error.message);
+      response.status(400).json({ error: error.message });
+      return;
+    }
+    if (this.changes === 0) {
+      response.sendStatus(404);
+    } else {
+      response.sendStatus(200);
+    }
+  });
+};
+
+// Delete a user by id
+const deleteUser = (request, response) => {
+  const { id } = request.params;
+  const query = `DELETE FROM user WHERE id = ?`;
+
+  db.run(query, [id], function (error) {
+    if (error) {
+      console.error(error.message);
+      response.status(400).json({ error: error.message });
+      return;
+    }
+    if (this.changes === 0) {
+      response.sendStatus(404);
+    } else {
+      response.sendStatus(200);
+    }
+  });
+};
 //#endregion Routes
 
 // This allows `index.js` to use functions defined in this file.
 module.exports = {
   getUserById,
-};
+  getUserById,
+  getAllUsers,
+  createUser,
+  updateUserName,
+  deleteUser,
+  };
